@@ -22,7 +22,7 @@ from glob import glob
 
 from setuptools import setup
 
-package_name = "bench"
+package_name = "add_three_ints"
 
 setup(
     name=package_name,
@@ -47,18 +47,8 @@ setup(
     tests_require=["pytest"],
     entry_points={
         "console_scripts": [
-            "add_three_ints_client = bench.add_three_ints_client:main",
-            "add_three_ints_service = bench.add_three_ints_service:main",
-            "talker_image = bench.talker_image:main",
-            "listener_image = bench.listener_image:main",
-            "talker_latency = bench.talker_latency:main",
-            "listener_latency = bench.listener_latency:main",
-            "talker_throughput = bench.talker_throughput:main",
-            "listener_throughput = bench.listener_throughput:main",
-            "listener_stress = bench.listener_stress:main",
-            "talker = bench.talker:main",
-            "listener = bench.listener:main",
-            "profiler = bench.profiler:main",
+            "add_three_ints_client = add_three_ints.add_three_ints_client:main",
+            "add_three_ints_service = add_three_ints.add_three_ints_service:main"
         ],
     },
 )

@@ -3,7 +3,7 @@
 <package format="3">
   <name>add_three_ints</name>
   <version>0.1.7</version>
-  <description>Examples using FogROS2</description>
+  <description>FogROS RealTime: Example 1 (py)</description>
   <maintainer email="kych@berkeley.edu">Kaiyuan (Eric) Chen</maintainer>
   <license>Apache License 2.0</license>
 
@@ -17,7 +17,7 @@
   <export>
     <build_type>ament_python</build_type>
     <rosindex>
-      <readme>../README.md</readme>
+      <readme>./README.md</readme>
     </rosindex>
   </export>
 </package>

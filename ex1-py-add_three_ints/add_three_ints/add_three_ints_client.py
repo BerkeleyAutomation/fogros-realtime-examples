@@ -52,7 +52,7 @@ def print_string_with_color_based_on_name(string, name):
 
     return colors[color_code] + string + "\033[00m"
 
-class AddThreeIntsAsyncClientNode(Node):
+class AddThreeIntsClientNode(Node):
 
     def __init__(self):
         super().__init__('add_three_ints_client_async')
@@ -77,7 +77,7 @@ def main(args=None):
     host_name = socket.gethostname()
     host_ip = socket.gethostbyname(host_name)
     
-    add_three_ints_client = AddThreeIntsAsyncClientNode()
+    add_three_ints_client = AddThreeIntsClientNode()
 
     a = 0
     b = 1
@@ -110,10 +110,6 @@ def main(args=None):
         b += 1
         c += 1
         
-        # latency.append(time() - time_start)
-        # plt.plot(latency)
-        #plt.savefig("latency.png")
-        
         # plot latency of different server_name with dots 
         if response.server_name not in latency:
             latency[response.server_name] = []
@@ -126,7 +122,7 @@ def main(args=None):
         plt.legend()
         plt.xlabel("time (s)")
         plt.ylabel("latency (s)")
-        plt.savefig("latency.png")
+        plt.savefig("latency-ex1-py-add_three_ints.png")
 
     add_three_ints_service_node.destroy_node()
     rclpy.shutdown()

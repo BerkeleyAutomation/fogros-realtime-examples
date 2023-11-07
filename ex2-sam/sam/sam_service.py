@@ -45,23 +45,6 @@ from sensor_msgs.msg import CompressedImage
 
 from shared_srvs.srv import Sam
 
-import matplotlib.pyplot as plt
-
-def show_anns(anns):
-    """ from https://github.com/facebookresearch/segment-anything/blob/main/notebooks/automatic_mask_generator_example.ipynb """
-    if len(anns) == 0:
-        return
-    sorted_anns = sorted(anns, key=(lambda x: x['area']), reverse=True)
-    ax = plt.gca()
-    ax.set_autoscale_on(False)
-
-    img = np.ones((sorted_anns[0]['segmentation'].shape[0], sorted_anns[0]['segmentation'].shape[1], 4))
-    img[:,:,3] = 0
-    for ann in sorted_anns:
-        m = ann['segmentation']
-        color_mask = np.concatenate([np.random.random(3), [0.35]])
-        img[m] = color_mask
-    ax.imshow(img)
 
 def print_string_with_color_based_on_name(string, name):
     
@@ -86,6 +69,7 @@ class SamServiceNode(Node):
         # TODO: right way to get path of src in ros?
         model_path = Path(f"{Path(__file__).parent}/../../../../../../models/sam_vit_h_4b8939.pth")
         self.sam = sam_model_registry["default"](checkpoint=model_path)
+        self.sam.to(device="cuda")
         self.sam_mask_generator = SamAutomaticMaskGenerator(self.sam)
 
     def sam_callback(self, request, response):
@@ -93,24 +77,11 @@ class SamServiceNode(Node):
             print_string_with_color_based_on_name(f'Received request', self.host_name)
         )
 
-        self.get_logger().info(
-            print_string_with_color_based_on_name(f'Decoding image...', self.host_name)
-        )
         req_image = cv2.imdecode(np.frombuffer(request.image.data, np.uint8), cv2.IMREAD_COLOR)
         self.get_logger().info(
             print_string_with_color_based_on_name(f'Generating masks...', self.host_name)
         )
         masks_output = self.sam_mask_generator.generate(req_image)
-
-        plt.figure(figsize=(20,20))
-        plt.imshow(req_image)
-        show_anns(masks_output)
-        plt.axis('off')
-        plt.savefig('segmented.png', bbox_inches='tight')
-
-        self.get_logger().info(
-            print_string_with_color_based_on_name(f'Encoding as png...', self.host_name)
-        )
 
         response.masks = []
         response.scores = []
@@ -120,8 +91,6 @@ class SamServiceNode(Node):
             compressed_image.format = "png"
             response.masks.append(compressed_image)
             response.scores.append(m['stability_score'])
-        # response.masks = [self.cvbridge.cv2_to_imgmsg(m['segmentation'].astype(np.uint8)) for m in masks_output]
-        # response.scores = [m['stability_score'] for m in masks_output]
 
         response.server_name = self.host_name
         self.get_logger().info(

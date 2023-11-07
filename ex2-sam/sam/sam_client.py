@@ -39,6 +39,7 @@ from pathlib import Path
 from time import sleep, time
 
 import cv2
+import matplotlib.pyplot as plt
 import numpy as np
 import rclpy
 from matplotlib import pyplot as plt
@@ -47,6 +48,22 @@ from rclpy.node import Node
 from sensor_msgs.msg import CompressedImage
 
 from shared_srvs.srv import Sam
+
+
+def show_anns(masks):
+    """based on https://github.com/facebookresearch/segment-anything/blob/main/notebooks/automatic_mask_generator_example.ipynb"""
+    if len(masks) == 0:
+        return
+    ax = plt.gca()
+    ax.set_autoscale_on(False)
+
+    img = np.ones((masks[0].shape[0], masks[0].shape[1], 4))
+    img[:, :, 3] = 0
+    for mask in masks:
+        m = np.all(mask == [1, 1, 1], axis=-1)
+        color_mask = np.concatenate([np.random.random(3), [0.35]])
+        img[m] = color_mask
+    ax.imshow(img)
 
 
 def print_string_with_color_based_on_name(string, name):
@@ -98,15 +115,14 @@ def main(args=None):
         f"{Path(__file__).parent}/../../../../../../images/happy-bear.png"
     )
 
-    image = CompressedImage()
-    image.format = "png"
+    request_image = CompressedImage()
+    request_image.format = "png"
     with Image.open(image_path) as image_file:
         image_file = image_file.convert("RGB")
         byte_io = io.BytesIO()
         image_file.save(byte_io, format="PNG")
         byte_io.seek(0)
-
-        image.data = byte_io.read()
+        request_image.data = byte_io.read()
 
     latency = dict()
     latency_timetsamp = dict()
@@ -115,7 +131,7 @@ def main(args=None):
     while True:
         time_start = time()
         sam_client.get_logger().info(f"I am {host_name} on {host_ip}. Sending request")
-        response = sam_client.send_request(image)
+        response = sam_client.send_request(request_image)
 
         sam_client.get_logger().info(
             print_string_with_color_based_on_name(
@@ -124,9 +140,18 @@ def main(args=None):
             )
         )
 
-        # for i, mask in enumerate(response.masks):
-        #     mask_img = cv2.imdecode(np.frombuffer(mask.data, np.uint8), cv2.IMREAD_COLOR)
-        #     cv2.imwrite(f"segmented_image_{i}.png", mask_img)
+        image = cv2.imdecode(
+            np.frombuffer(request_image.data, np.uint8), cv2.IMREAD_COLOR
+        )
+        masks = [
+            cv2.imdecode(np.frombuffer(mask.data, np.uint8), cv2.IMREAD_COLOR)
+            for mask in response.masks
+        ]
+        plt.figure(figsize=(20, 20))
+        plt.imshow(image)
+        show_anns(masks)
+        plt.axis("off")
+        plt.savefig("segmented-from-client.png", bbox_inches="tight")
 
         # plot latency of different server_name with dots
         if response.server_name not in latency:

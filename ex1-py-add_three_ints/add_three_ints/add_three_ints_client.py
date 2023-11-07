@@ -84,7 +84,7 @@ def main(args=None):
     c = 2
 
     latency = dict()
-    latency_timetsamp = dict()
+    latency_timestamp = dict()
     beginning_time = time()
 
     while True:
@@ -113,12 +113,12 @@ def main(args=None):
         # plot latency of different server_name with dots 
         if response.server_name not in latency:
             latency[response.server_name] = []
-            latency_timetsamp[response.server_name] = []
+            latency_timestamp[response.server_name] = []
         latency[response.server_name].append(time() - time_start)
-        latency_timetsamp[response.server_name].append(time() - beginning_time)
+        latency_timestamp[response.server_name].append(time() - beginning_time)
         plt.clf()
         for server_name in latency:
-            plt.plot(latency_timetsamp[server_name], latency[server_name], label=server_name, marker='o',linestyle = 'None')
+            plt.plot(latency_timestamp[server_name], latency[server_name], label=server_name, marker='o',linestyle = 'None')
         plt.legend()
         plt.xlabel("time (s)")
         plt.ylabel("latency (s)")

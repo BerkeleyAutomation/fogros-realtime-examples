@@ -151,7 +151,7 @@ def main(args=None):
         plt.imshow(image)
         show_anns(masks)
         plt.axis("off")
-        plt.savefig("segmented-from-client.png", bbox_inches="tight")
+        plt.savefig("ex2-segmented.png", bbox_inches="tight")
 
         # plot latency of different server_name with dots
         if response.server_name not in latency:
@@ -171,7 +171,7 @@ def main(args=None):
         plt.legend()
         plt.xlabel("time (s)")
         plt.ylabel("latency (s)")
-        plt.savefig("latency-ex2-sam.png")
+        plt.savefig("ex2-latency.png")
 
     sam_service_node.destroy_node()
     rclpy.shutdown()

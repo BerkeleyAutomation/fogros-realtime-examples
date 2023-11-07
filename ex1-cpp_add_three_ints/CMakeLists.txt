@@ -8,17 +8,17 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(bench_msgs REQUIRED)
+find_package(shared_srvs REQUIRED)
 
 include_directories(include)
 
 # Declare a C++ executable for the service node
 add_executable(service_node src/service.cpp)
-ament_target_dependencies(service_node rclcpp bench_msgs)
+ament_target_dependencies(service_node rclcpp shared_srvs)
 
 # Declare a C++ executable for the client node
 add_executable(client_node src/client.cpp)
-ament_target_dependencies(client_node rclcpp bench_msgs)
+ament_target_dependencies(client_node rclcpp shared_srvs)
 
 # Install executables and/or libraries
 install(TARGETS

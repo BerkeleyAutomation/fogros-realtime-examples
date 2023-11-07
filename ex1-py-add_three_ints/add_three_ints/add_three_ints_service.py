@@ -36,7 +36,7 @@ import random
 
 import rclpy
 from rclpy.node import Node
-from bench_msgs.srv import AddThreeInts
+from shared_srvs.srv import AddThreeInts
 import hashlib
 
 

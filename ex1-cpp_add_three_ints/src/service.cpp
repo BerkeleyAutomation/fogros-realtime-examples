@@ -23,7 +23,7 @@ void AddThreeIntsServiceNode::add_three_ints_callback(const std::shared_ptr<AddT
   response->sum = request->a + request->b + request->c;
   response->server_name = host_name_;
 
-  RCLCPP_INFO(this->get_logger(), "Incoming request: a: %d, b: %d, c: %d. Sending: %d",
+  RCLCPP_INFO(this->get_logger(), "Incoming request: a: %ld, b: %ld, c: %ld. Sending: %ld",
               request->a, request->b, request->c, response->sum);
 }
 

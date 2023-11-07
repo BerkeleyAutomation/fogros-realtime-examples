@@ -1,11 +1,13 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>bench_msgs</name>
+  <name>shared_srvs</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="christian.juette@us.bosch.com">juc9hi</maintainer>
-  <license>TODO: License declaration</license>
+  <description>Package for shared srv files</description>
+  <maintainer email="trinityc@berkeley.edu">Trinity Chung</maintainer>
+  <license>Apache License 2.0</license>
+
+  <depend>sensor_msgs</depend>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
   <buildtool_depend>rosidl_default_generators</buildtool_depend>

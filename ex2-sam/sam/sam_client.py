@@ -31,41 +31,56 @@
 # PROVIDED HEREUNDER IS PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE
 # MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
+import hashlib
+import io
 import socket
-from time import sleep
+import time
+from pathlib import Path
+from time import sleep, time
 
+import cv2
+import numpy as np
 import rclpy
-from rclpy.node import Node
-from shared_srvs.srv import AddThreeInts
-import hashlib 
 from matplotlib import pyplot as plt
-from time import time 
+from PIL import Image
+from rclpy.node import Node
+from sensor_msgs.msg import CompressedImage
+
+from shared_srvs.srv import Sam
+
 
 def print_string_with_color_based_on_name(string, name):
-    
     hash_value = int(hashlib.sha256(name.encode()).hexdigest(), 16)
     # Choose a color based on the hash value
     color_code = hash_value % 8  # You can change the number of colors as needed
 
     # Define color codes (you can modify this based on your preferences)
-    colors = ["\033[91m", "\033[92m", "\033[93m", "\033[94m", "\033[95m", "\033[96m", "\033[97m", "\033[90m"]
+    colors = [
+        "\033[91m",
+        "\033[92m",
+        "\033[93m",
+        "\033[94m",
+        "\033[95m",
+        "\033[96m",
+        "\033[97m",
+        "\033[90m",
+    ]
 
     return colors[color_code] + string + "\033[00m"
 
-class AddThreeIntsClientNode(Node):
 
+class SamClientNode(Node):
     def __init__(self):
-        super().__init__('add_three_ints_client_async')
-        self.get_logger().info(f"Initializing client for /add_three_ints.")
-        self.cli = self.create_client(AddThreeInts, 'add_three_ints')
+        super().__init__("sam_client_async")
+        self.get_logger().info(f"Initializing client for /sam.")
+        self.cli = self.create_client(Sam, "sam")
         while not self.cli.wait_for_service(timeout_sec=1.0):
-            self.get_logger().info('service not available, waiting again...')
-        self.req = AddThreeInts.Request()
+            self.get_logger().info("service not available, waiting again...")
+        self.req = Sam.Request()
 
-    def send_request(self, a, b, c):
-        self.req.a = a
-        self.req.b = b
-        self.req.c = c
+    def send_request(self, image):
+        self.req.image = image
+
         self.future = self.cli.call_async(self.req)
         rclpy.spin_until_future_complete(self, self.future)
         return self.future.result()
@@ -76,12 +91,22 @@ def main(args=None):
 
     host_name = socket.gethostname()
     host_ip = socket.gethostbyname(host_name)
-    
-    add_three_ints_client = AddThreeIntsClientNode()
 
-    a = 0
-    b = 1
-    c = 2
+    sam_client = SamClientNode()
+    # TODO: right way to get path of src in ros?
+    image_path = Path(
+        f"{Path(__file__).parent}/../../../../../../images/happy-bear.png"
+    )
+
+    image = CompressedImage()
+    image.format = "png"
+    with Image.open(image_path) as image_file:
+        image_file = image_file.convert("RGB")
+        byte_io = io.BytesIO()
+        image_file.save(byte_io, format="PNG")
+        byte_io.seek(0)
+
+        image.data = byte_io.read()
 
     latency = dict()
     latency_timetsamp = dict()
@@ -89,28 +114,21 @@ def main(args=None):
 
     while True:
         time_start = time()
-        add_three_ints_client.get_logger().info(f"I am {host_name} ond {host_ip}. Sending request {a}, {b}, {c}")
-        response = add_three_ints_client.send_request(a,b,c)
-        if response.sum == 0:
-            add_three_ints_client.get_logger().error(
-                print_string_with_color_based_on_name(
-                    f'Result times out!',
-                    response.server_name
-                )
+        sam_client.get_logger().info(f"I am {host_name} on {host_ip}. Sending request")
+        response = sam_client.send_request(image)
+
+        sam_client.get_logger().info(
+            print_string_with_color_based_on_name(
+                f"Received from {response.server_name}.",
+                response.server_name,
             )
-        else:
-            add_three_ints_client.get_logger().info(
-                print_string_with_color_based_on_name(
-                    f'Received from {response.server_name}. Result of add_two_ints: {a} + {b} + {c} = {response.sum}',
-                    response.server_name
-                )
-            )
-        
-        a += 1
-        b += 1
-        c += 1
-        
-        # plot latency of different server_name with dots 
+        )
+
+        # for i, mask in enumerate(response.masks):
+        #     mask_img = cv2.imdecode(np.frombuffer(mask.data, np.uint8), cv2.IMREAD_COLOR)
+        #     cv2.imwrite(f"segmented_image_{i}.png", mask_img)
+
+        # plot latency of different server_name with dots
         if response.server_name not in latency:
             latency[response.server_name] = []
             latency_timetsamp[response.server_name] = []
@@ -118,13 +136,19 @@ def main(args=None):
         latency_timetsamp[response.server_name].append(time() - beginning_time)
         plt.clf()
         for server_name in latency:
-            plt.plot(latency_timetsamp[server_name], latency[server_name], label=server_name, marker='o',linestyle = 'None')
+            plt.plot(
+                latency_timetsamp[server_name],
+                latency[server_name],
+                label=server_name,
+                marker="o",
+                linestyle="None",
+            )
         plt.legend()
         plt.xlabel("time (s)")
         plt.ylabel("latency (s)")
-        plt.savefig("latency-ex1-py-add_three_ints.png")
+        plt.savefig("latency-ex2-sam.png")
 
-    add_three_ints_service_node.destroy_node()
+    sam_service_node.destroy_node()
     rclpy.shutdown()
 
 

@@ -6,14 +6,14 @@
 #include <iomanip>
 
 #include "rclcpp/rclcpp.hpp"
-#include "bench_msgs/srv/add_three_ints.hpp"
+#include "shared_srvs/srv/add_three_ints.hpp"
 
 #include <netinet/in.h>
 #include <unistd.h>
 #include <arpa/inet.h>
 
 using namespace std::chrono_literals;
-using AddThreeInts = bench_msgs::srv::AddThreeInts;
+using AddThreeInts = shared_srvs::srv::AddThreeInts;
 
 class AddThreeIntsClientNode : public rclcpp::Node
 {

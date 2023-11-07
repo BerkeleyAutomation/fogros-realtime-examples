@@ -2,9 +2,9 @@
 #define ADD_THREE_INTS_ASYNC_CLIENT_NODE_HPP
 
 #include "rclcpp/rclcpp.hpp"
-#include "bench_msgs/srv/add_three_ints.hpp"
+#include "shared_srvs/srv/add_three_ints.hpp"
 
-using AddThreeInts = bench_msgs::srv::AddThreeInts;
+using AddThreeInts = shared_srvs::srv::AddThreeInts;
 
 class AddThreeIntsClientNode : public rclcpp::Node {
 public:

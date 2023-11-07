@@ -14,8 +14,10 @@ find_package(rosidl_default_generators REQUIRED)
 find_package(sensor_msgs REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/YoloDetection.msg"
   "srv/AddThreeInts.srv"
   "srv/Sam.srv"
+  "srv/Yolo.srv"
   DEPENDENCIES sensor_msgs
 )
 

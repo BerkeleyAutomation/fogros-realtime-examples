@@ -97,7 +97,7 @@ def main(args=None):
     yolo_client = YoloClientNode()
     # TODO: right way to get path of src in ros?
     image_path = Path(
-        f"{Path(__file__).parent}/../../../../../../images/ucb-transit.png"
+        f"{Path(__file__).parent}/../../../../../../src/fogros-realtime-examples/images/ucb-transit.png"
     )
 
     request_image = CompressedImage()

@@ -112,7 +112,7 @@ def main(args=None):
     sam_client = SamClientNode()
     # TODO: right way to get path of src in ros?
     image_path = Path(
-        f"{Path(__file__).parent}/../../../../../../images/happy-bear.png"
+        f"{Path(__file__).parent}/../../../../../../src/fogros-realtime-examples/images/ucb-transit.png"
     )
 
     request_image = CompressedImage()

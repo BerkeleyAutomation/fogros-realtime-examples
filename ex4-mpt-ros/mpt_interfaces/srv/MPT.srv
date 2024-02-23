@@ -1,0 +1,6 @@
+mpt_interfaces/MotionPlanRequest motion_plan_request
+std_msgs/String scenario
+
+---
+std_msgs/Float64MultiArray motion_plan
+std_msgs/Float64 objective_cost

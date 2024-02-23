@@ -67,7 +67,8 @@ class SamServiceNode(Node):
         self.service = self.create_service(Sam, "sam", self.sam_callback)
 
         # TODO: right way to get path of src in ros?
-        model_path = Path(f"{Path(__file__).parent}/../../../../../../models/sam_vit_h_4b8939.pth")
+        # model_path = Path(f"{Path(__file__).parent}/../../../../../../src/fogros-realtime-examples/models/sam_vit_h_4b8939.pth")
+        model_path = "/tmp/sam_vit_h_4b8939.pth"
         self.sam = sam_model_registry["default"](checkpoint=model_path)
         self.sam.to(device="cuda") # comment this line if not have nvidia gpu
         self.sam_mask_generator = SamAutomaticMaskGenerator(self.sam)

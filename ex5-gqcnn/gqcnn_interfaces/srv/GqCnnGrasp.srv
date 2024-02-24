@@ -1,0 +1,6 @@
+sensor_msgs/CameraInfo gqcnn_camera_info
+sensor_msgs/Image gqcnn_image
+sensor_msgs/CompressedImage gqcnn_mask
+---
+gqcnn_interfaces/GQCNNGrasp grasp
+geometry_msgs/PoseStamped grasp_pose

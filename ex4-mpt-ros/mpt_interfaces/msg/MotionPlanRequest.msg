@@ -1,6 +1,6 @@
 float64 max_planning_time
 float64 min_planning_time
-float64 min_solution_cost
+float64 max_solution_cost
 string[] start_names
 string[] goal_names
 string[] bounds_names

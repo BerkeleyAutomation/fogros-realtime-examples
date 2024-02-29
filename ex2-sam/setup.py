@@ -49,7 +49,8 @@ setup(
     entry_points={
         "console_scripts": [
             "sam_client = sam.sam_client:main",
-            "sam_service = sam.sam_service:main"
+            "sam_service = sam.sam_service:main",
+            "sam_period = sam.sam_period:main",
         ],
     },
 )

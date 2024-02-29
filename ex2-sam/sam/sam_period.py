@@ -37,7 +37,7 @@ import socket
 import time
 from pathlib import Path
 from time import sleep, time
-
+from datetime import datetime
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
@@ -88,11 +88,16 @@ def print_string_with_color_based_on_name(string, name):
 
 class SamClientNode(Node):
     def __init__(self):
-        super().__init__("sam_client_async")
+        super().__init__("sam_period_async")
         self.get_logger().info(f"Initializing client for /sam.")
         self.cli = self.create_client(Sam, "sam")
-        while not self.cli.wait_for_service(timeout_sec=1.0):
-            self.get_logger().info("service not available, waiting again...")
+
+        # declare a parameter of bool
+        self.declare_parameter("send_on_odd_minute", True)
+        self.send_on_odd_minute = self.get_parameter("send_on_odd_minute").value
+
+        # while not self.cli.wait_for_service(timeout_sec=1.0):
+        #     self.get_logger().info("service not available, waiting again...")
         self.req = Sam.Request()
 
     def send_request(self, image):
@@ -130,23 +135,31 @@ def main(args=None):
 
     while True:
         time_start = time()
-        sam_client.get_logger().info(f"I am {host_name} on {host_ip}. Sending request")
-        response = sam_client.send_request(request_image)
-
-        sam_client.get_logger().info(
-            print_string_with_color_based_on_name(
-                f"Received from {response.server_name}.",
-                response.server_name,
+        if int(datetime.now().minute) % 2 == sam_client.send_on_odd_minute:
+            sam_client.get_logger().info(f"I am {host_name} on {host_ip}. Sending request")
+            response = sam_client.send_request(request_image)
+            sam_client.get_logger().info(
+                print_string_with_color_based_on_name(
+                    f"Received from {response.server_name}.",
+                    response.server_name,
+                )
             )
-        )
-
-        image = cv2.imdecode(
-            np.frombuffer(request_image.data, np.uint8), cv2.IMREAD_COLOR
-        )
-        masks = [
-            cv2.imdecode(np.frombuffer(mask.data, np.uint8), cv2.IMREAD_COLOR)
-            for mask in response.masks
-        ]
+            image = cv2.imdecode(
+                np.frombuffer(request_image.data, np.uint8), cv2.IMREAD_COLOR
+            )
+            masks = [
+                cv2.imdecode(np.frombuffer(mask.data, np.uint8), cv2.IMREAD_COLOR)
+                for mask in response.masks
+            ]
+        else:
+            sam_client.get_logger().info(
+                print_string_with_color_based_on_name(
+                    f"Skipping request.",
+                    "None",
+                )
+            )  
+            sleep(3)
+            continue 
 
 
     sam_service_node.destroy_node()

@@ -1,5 +1,5 @@
 # first build an image with rust, ros and cargo chef
-FROM osrf/ros:humble-desktop AS chef
+FROM ros:humble AS chef
 
 RUN apt-get update && apt-get install -y ros-humble-rmw-cyclonedds-cpp
 

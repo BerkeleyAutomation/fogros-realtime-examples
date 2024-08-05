@@ -97,11 +97,11 @@ def main(args=None):
     yolo_client = YoloClientNode()
     # TODO: right way to get path of src in ros?
     image_path = Path(
-        f"{Path(__file__).parent}/../../../../../../src/fogros-realtime-examples/images/ucb-transit.png"
+        f"{Path(__file__).parent}/../../../../../../src/fogros-realtime-examples/images/berkeley-transit.jpg"
     )
 
     request_image = CompressedImage()
-    request_image.format = "png"
+    request_image.format = "jpg"
     with Image.open(image_path) as image_file:
         image_file = image_file.convert("RGB")
         byte_io = io.BytesIO()
@@ -124,58 +124,7 @@ def main(args=None):
                 response.server_name,
             )
         )
-
-        image = cv2.imdecode(
-            np.frombuffer(request_image.data, np.uint8), cv2.IMREAD_COLOR
-        )
-        plt.figure(figsize=(20, 20))
-        plt.imshow(image)
-        ax = plt.gca()
-        colors = ["r", "g", "b", "c", "m"]
-        for d in response.detections:
-            hash_value = int(hashlib.sha256(d.class_name.encode()).hexdigest(), 16)
-            color = colors[hash_value % len(colors)]
-            rect = Rectangle(
-                (d.bottom, d.left),
-                d.top - d.bottom,
-                d.right - d.left,
-                linewidth=4,
-                edgecolor=color,
-                facecolor="none",
-            )
-            ax.add_patch(rect)
-            label_offset = 0.5
-            ax.text(
-                (d.bottom + d.top) / 2,
-                d.left + label_offset,
-                f"{d.class_name} ({d.confidence:.1f})",
-                va="bottom",
-                ha="center",
-                fontsize=20,
-                color=color,
-            )
-        plt.axis("off")
-        plt.savefig("ex3-detections.png", bbox_inches="tight")
-
-        # plot latency of different server_name with dots
-        if response.server_name not in latency:
-            latency[response.server_name] = []
-            latency_timestamp[response.server_name] = []
-        latency[response.server_name].append(time() - time_start)
-        latency_timestamp[response.server_name].append(time() - beginning_time)
-        plt.clf()
-        for server_name in latency:
-            plt.plot(
-                latency_timestamp[server_name],
-                latency[server_name],
-                label=server_name,
-                marker="o",
-                linestyle="None",
-            )
-        plt.legend()
-        plt.xlabel("time (s)")
-        plt.ylabel("latency (s)")
-        plt.savefig("ex3-latency.png")
+        sleep(3)
 
     yolo_service_node.destroy_node()
     rclpy.shutdown()
